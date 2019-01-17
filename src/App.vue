@@ -1,50 +1,55 @@
 <template>
   <div id="app">
     <Grid :style="{height: '200px'}"
-          :data-items="dataItems"
-          :columns="columns">
+          :data-items="result"
+          :columns="columns"
+          :pageable="true"
+          :skip="skip"
+          :take="take"
+          :total="total"
+          @pagechange="pageChange">
     </Grid>
   </div>
 </template>
 
 <script>
+import axios from 'axios'
 
 export default {
   name: 'app',
-  data: function () {
+  data () {
     return {
-      dataItems: [
-      {
-        "name": "Ruxanda",
-        "surname": "Corbea",
-        "gender": "female",
-        "region": "Romania"
-      },
-      {
-        "name": "Paula",
-        "surname": "Acevedo",
-        "gender": "female",
-        "region": "Mexico"
-      },
-      {
-        "name": "David",
-        "surname": "Dediu",
-        "gender": "male",
-        "region": "Romania"
-      },
-      {
-        "name": "Urmila",
-        "surname": "Belbase",
-        "gender": "female",
-        "region": "Nepal"
-      }],
+      dataItems: [],
       columns: [
         { field: 'name'},
         { field: 'surname'},
         { field: 'gender'},
         { field: 'region' }
       ],
-    };
+      skip: 0,
+      take: 10,
+    }
+  },
+  computed: {
+    result () {
+        return this.dataItems.slice(this.skip, this.take + this.skip)
+    },
+    total () {
+      return this.dataItems.length
+    }
+  },
+  mounted () {
+    axios
+      .get('https://uinames.com/api/?amount=25')
+      .then(response => {
+        this.dataItems = response.data
+      })
+  },
+  methods: {
+    pageChange(event) {
+        this.skip = event.page.skip;
+        this.take = event.page.take;
+    }
   }
 }
 </script>
